@@ -12,3 +12,8 @@ ____
 - Данные попарного сравнения
 
 # Тесты
+![изображение](https://github.com/gagashmina/Homework-6/assets/119807588/a6059f56-b5ab-4665-96fb-35beced3b757)
+
+![изображение](https://github.com/gagashmina/Homework-6/assets/119807588/45080ad1-62db-4773-b90c-b39cb2bb064b)
+
+![изображение](https://github.com/gagashmina/Homework-6/assets/119807588/adbfbde9-8f21-45c8-8477-89bf644d4b14)
