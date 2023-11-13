@@ -1,46 +1,66 @@
-import numpy as np
+def validate_input(value):
+    # Проверяем, что введенное значение является числом
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
-# Функция для ввода данных попарного сравнения критериев с обработкой ошибок
-def input_comparison_matrix(num_criteria):
-    comparison_matrix = np.zeros((num_criteria, num_criteria))
-    
+def get_pairwise_comparisons(num_criteria):
+    comparisons = []
     for i in range(num_criteria):
         for j in range(i+1, num_criteria):
             while True:
-                try:
-                    comparison_value = float(input(f"Введите отношение важности критерия {i+1} к критерию {j+1}: "))
-                    if comparison_value <= 0:
-                        raise ValueError("Значение должно быть положительным.")
-                    reciprocal_value = 1 / comparison_value
-                    comparison_matrix[i][j] = comparison_value
-                    comparison_matrix[j][i] = reciprocal_value
+                comparison = input(f"Введите отношение между критерием {i+1} и {j+1} (от 1 до 9): ")
+                if validate_input(comparison) and 1 <= float(comparison) <= 9:
+                    comparisons.append(float(comparison))
                     break
-                except ValueError as e:
-                    print(f"Ошибка: {e}. Пожалуйста, введите корректное значение.")
-    
-    return comparison_matrix
+                else:
+                    print("Неправильный ввод. Введите число от 1 до 9.")
+    return comparisons
 
-# Функция для вычисления весовых коэффициентов
-def calculate_weights(comparison_matrix):
-    num_criteria = len(comparison_matrix)
-    weights = np.prod(comparison_matrix, axis=1) ** (1 / num_criteria)
-    weights /= np.sum(weights)
-    return weights
+def prod(values):
+    result = 1
+    for value in values:
+        result *= value
+    return result
 
-if __name__ == "__main":
+def calculate_weights(comparisons):
+    num_criteria = int((2 + (8 * len(comparisons) + 1) ** 0.5) ** 0.5 - 1)
+    matrix = [[1] * num_criteria for _ in range(num_criteria)]
+    idx = 0
+    for i in range(num_criteria):
+        for j in range(i+1, num_criteria):
+            matrix[i][j] = comparisons[idx]
+            matrix[j][i] = 1/comparisons[idx]
+            idx += 1
+    weights = []
+    for column in zip(*matrix):
+        column_sum = sum(column)
+        column_weights = [value / column_sum for value in column]
+        weights.append(prod(column_weights) ** (1 / num_criteria))
+    sum_weights = sum(weights)
+    norm_weights = [weight / sum_weights for weight in weights]
+    return norm_weights
+
+def main():
+    # Получаем количество критериев
     while True:
-        try:
-            num_criteria = int(input("Введите количество критериев: "))
-            if num_criteria <= 0:
-                raise ValueError("Количество критериев должно быть положительным числом.")
-            
-            comparison_matrix = input_comparison_matrix(num_criteria)
-            weights = calculate_weights(comparison_matrix)
-            
-            # Вывод весовых коэффициентов
-            for i, weight in enumerate(weights):
-                print(f"Вес критерия {i+1}: {weight:.2f}")
-            
+        num_criteria = input("Введите количество критериев: ")
+        if validate_input(num_criteria) and int(num_criteria) > 1:
+            num_criteria = int(num_criteria)
             break
-        except ValueError as e:
-            print(f"Ошибка: {e}. Пожалуйста, введите корректное значение.")
+        else:
+            print("Неправильный ввод. Количество критериев должно быть целым числом больше 1.")
+
+        # Получаем сравнения попарно
+    comparisons = get_pairwise_comparisons(num_criteria)
+
+    # Вычисляем веса критериев
+    weights = calculate_weights(comparisons)
+
+    # Выводим результат
+    print(f"Веса критериев: {', '.join([str(weight) for weight in weights])}")
+
+if __name__ == "__main__":
+    main()
